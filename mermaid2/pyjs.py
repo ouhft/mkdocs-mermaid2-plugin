@@ -14,11 +14,9 @@ from typing import Any, Callable
 from jsbeautifier import beautify
 
 
-def dumps(obj:Any, 
-          pretty:bool=True, 
-          default:Callable[[Any], str]=None) -> str:
+def dumps(obj: Any, pretty: bool = True, default: Callable[[Any], str] = None) -> str:
     """
-    Serialize an object into a JavaScript object syntax. 
+    Serialize an object into a JavaScript object syntax.
 
     Arguments:
     ---------
@@ -28,9 +26,7 @@ def dumps(obj:Any,
 
     Usage Note
     ----------
-    When a string starts with a ^ character (caret),
-    the rest of the string will be considered as an identifier.
-    
+    When a string starts with a ^ character (caret), the rest of the string will be considered as an identifier.
 
     Returns
     -------
@@ -48,22 +44,21 @@ def dumps(obj:Any,
         if not obj:
             # empty
             r = '""'
-        elif obj[0] == '^':
+        elif obj[0] == "^":
             # it's a literal
             r = obj[1:]
         else:
             # normal string
-            r =  '"%s"' % obj
+            r = '"{0}"'.format(obj)
         return r
     elif isinstance(obj, dict):
         l = []
         for key, value in obj.items():
             s_value = dumps(value, False, default)
-            # print("Key, value, s_value:", key, value, s_value)
-            v = '%s: %s' % (key, s_value)
+            v = "{0}: {1}".format(key, s_value)
             l.append(v)
-        #return indent('\n'.join(l), level)
-        r = "{ %s }" % ', '.join(l)
+        # return indent('\n'.join(l), level)
+        r = "{{ {0} }}".format(", ".join(l))
         if pretty:
             r = beautify(r)
         # r = str(level) + r
@@ -72,23 +67,21 @@ def dumps(obj:Any,
         l = []
         for value in obj:
             s_value = dumps(value, False, default)
-            l.append('%s' % s_value)
-        r = "[ %s ]" % ',  '.join(l)
+            l.append("{0}".format(s_value))
+        r = "[ {0} ]".format(",  ".join(l))
         if pretty:
             r = beautify(r)
         return r
     elif default:
         return default(obj)
     else:
-        raise ValueError("Unrecognized type %s for Javascript" % 
-                          type(obj).__name__)
+        raise ValueError(
+            "Unrecognized type {0} for Javascript".format(type(obj).__name__)
+        )
 
 
 if __name__ == "__main__":
-    a = { "hello": "world", 
-        "barbaz": "^bazbar",
-        "foo": {"bar": 2},
-        "bar": True}
+    a = {"hello": "world", "barbaz": "^bazbar", "foo": {"bar": 2}, "bar": True}
 
     r = dumps(a)
     print("FIRST")
@@ -97,10 +90,11 @@ if __name__ == "__main__":
     print(r)
 
     assert '"bazbar"' not in r
-    assert 'bazbar' in r
+    assert "bazbar" in r
 
     print("SECOND")
     import yaml
+
     config_yaml = """
     plugins:
         - mermaid2:
